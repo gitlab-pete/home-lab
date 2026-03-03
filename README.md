@@ -1,14 +1,16 @@
 # 🏠 Home Lab
 
-A self-hosted home lab running on repurposed hardware, built for learning, privacy, and security practice.
+Personal home lab running on a repurposed laptop. Started this as a way to get hands-on with self-hosting, Linux administration, and network security — and it's grown into something I actually rely on day-to-day.
+
+Still a work in progress. The core stuff is up and running; the rest is planned.
+I keep this README up to date with my progress.
 
 ---
 
 ## 🖥️ Hardware
 
-| Component  | Spec                                      |
+| Device     | Repurposed  - cleaned & upgraded |
 |------------|-------------------------------------------|
-| Device     | Repurposed laptop (cleaned out & upgraded)|
 | CPU        | Intel Core i5-4310U @ 2.00GHz (4 threads) |
 | RAM        | 16GB DDR3                                 |
 | Storage    | 1TB                                       |
@@ -19,22 +21,21 @@ A self-hosted home lab running on repurposed hardware, built for learning, priva
 
 **Ubuntu Server 24.04.4 LTS** — headless, runs 24/7
 
-- Security patches applied automatically via `unattended-upgrades` + `needrestart`
+- Security patches applied via `unattended-upgrades` + `needrestart`
 - Docker container images updated via `cron` jobs
-- All containers set to `restart: unless-stopped` — survive reboots automatically
-
+- All containers set to `restart: unless-stopped` to survive reboots
 ---
 
-## 🌐 Network & Access
+## 🌐 Accessing the server
 
-| Component    | Role                                                                 |
-|--------------|----------------------------------------------------------------------|
-| **Tailscale**| Zero-config mesh VPN — all services accessible only over Tailscale  |
-| **Caddy**    | Reverse proxy — HTTPS via Tailscale-issued TLS cert (`*.ts.net`)    |
-| **UFW**      | Firewall — blocks all traffic except Tailscale interface (`ts0`)    |
-| **OpenSSH**  | Key-based auth only, password auth disabled, non-default port, restricted to Tailscale interface |
-| **Fail2ban** | Bans IPs on repeated failed SSH attempts                            |
-| **NextDNS**  | Cloud DNS with blocklists — coexists with Tailscale split DNS       |
+| Service     | Status | Role                                                                 |
+|--------------|--------|----------------------------------------------------------------------|
+| **Tailscale**| ✅ Done | Free VPN provider, that also gives TLS certificates for their domain — all services accessible only over Tailscale  |
+| **Caddy**    | ✅ Done | Reverse proxy — HTTPS via Tailscale-issued TLS cert (`*.ts.net`)    |
+| **UFW**      | ✅ Done | Firewall blocks all traffic except Tailscale interface (`ts0`)    |
+| **OpenSSH**  | ✅ Done | Key-based auth only, password auth disabled, non-default port, restricted to Tailscale interface |
+| **Fail2ban** | ✅ Done | Bans IPs on 3rd failed SSH attempt for 5 mins                    |
+| **NextDNS**  | ✅ Done | Cloud DNS with blocklists — coexists with Tailscale    |
 
 > No ports are exposed on the home router. All external access goes through Tailscale.
 
@@ -42,39 +43,57 @@ A self-hosted home lab running on repurposed hardware, built for learning, priva
 
 ## 📦 Services
 
-All services run in **Docker** via **Docker Compose**, managed through **Portainer**.
+All services run in **Docker** via **Docker Compose**.
+
+### Currently Running
 
 | Service          | Purpose                              | Notes                                              |
 |------------------|--------------------------------------|----------------------------------------------------|
 | **Nextcloud**    | Self-hosted file storage & sharing   | Friend accounts set up for sharing                 |
 | **Vaultwarden**  | Self-hosted password manager         | Bitwarden-compatible clients & browser extensions  |
+| **Caddy**        | Reverse proxy                        | HTTPS termination with Tailscale TLS cert          |
+
+### Planned
+
+| Service          | Purpose                              | Notes                                              |
+|------------------|--------------------------------------|----------------------------------------------------|
+| **Portainer**    | Docker management UI                 | Web UI over Tailscale — works on CLI-only servers  |
 | **Wazuh**        | SIEM — log aggregation & alerts      | Agents on server, main PC, and travel laptop       |
 | **Suricata**     | IDS — network traffic inspection     | Custom rules, alert validation                     |
-| **Portainer**    | Docker management UI                 | Web UI over Tailscale — works on CLI-only servers  |
 | **Authelia**     | SSO + 2FA                            | Single login across all services                   |
 | **Uptime Kuma**  | Uptime monitoring & alerting         | Alerts via email/Telegram if anything goes down    |
 | **qBittorrent**  | Torrent client                       | Web UI, accessible via Tailscale only              |
-| **Caddy**        | Reverse proxy                        | HTTPS termination with Tailscale TLS cert          |
 
 ---
 
 ## 📊 Monitoring
 
-- **Wazuh** agents deployed on the server, main PC, and travel laptop — centralised log aggregation and security alerting
-- **Uptime Kuma** monitors all services and sends notifications if anything goes down
-- Focus: log aggregation and alert monitoring (not EDR/active response)
+> Not set up yet — this is next on the list.
+
+Planning to deploy:
+- **Wazuh** — centralised log aggregation across the server, main PC, and travel laptop
+- **Uptime Kuma** — service uptime monitoring with email/Telegram alerts
+
+The focus will be on log aggregation and alerting, not active response. This will most likely have to run on my main
 
 ---
 
 ## 🔒 Security Posture
 
+**Done:**
 - ✅ No open ports on home router — Tailscale-only access
-- ✅ All services behind **Authelia SSO + 2FA**
-- ✅ SSH hardened — key-only auth, non-default port, Fail2ban
-- ✅ IDS via **Suricata** with custom rules
-- ✅ SIEM via **Wazuh** aggregating logs from all devices
-- ✅ DNS-level blocking via **NextDNS**
+- ✅ SSH hardened — key-only auth, non-default port, restricted to Tailscale interface
+- ✅ UFW configured — all traffic blocked except through `ts0`
 - ✅ Secrets managed via `.env` files — never hardcoded in compose files
+- ✅ DNS-level blocking via **NextDNS**
+- ✅ **Fail2ban** for SSH brute-force protection
+
+**Planned:**
+- 🔜 All services behind **Authelia SSO + 2FA**
+- 🔜 IDS via **Suricata** with custom rules
+- 🔜 SIEM via **Wazuh** aggregating logs from all devices
+- 🔜 Planning to enroll all personal devices to gather logs from the main PC, server, and laptop
+
 
 ---
 
@@ -83,7 +102,7 @@ All services run in **Docker** via **Docker Compose**, managed through **Portain
 <details>
 <summary>📄 Nextcloud — docker-compose.yml</summary>
 
-```yaml
+yaml
 services:
   nextcloud:
     image: nextcloud:33
@@ -127,7 +146,7 @@ volumes:
 networks:
   nextcloud-net:
     driver: bridge
-```
+
 
 </details>
 
@@ -136,7 +155,7 @@ networks:
 <details>
 <summary>📄 Vaultwarden — docker-compose.yaml</summary>
 
-```yaml
+yaml
 services:
   vaultwarden:
     image: vaultwarden/server:latest
@@ -162,7 +181,7 @@ services:
 networks:
   proxy:
     external: true
-```
+
 
 </details>
 
@@ -171,7 +190,7 @@ networks:
 <details>
 <summary>📄 Caddy — docker-compose.yaml</summary>
 
-```yaml
+yaml
 services:
   caddy:
     image: caddy:latest
@@ -188,7 +207,7 @@ services:
 volumes:
   caddy_data:
   caddy_config:
-```
+
 
 </details>
 
@@ -197,7 +216,7 @@ volumes:
 <details>
 <summary>📄 Caddy — Caddyfile</summary>
 
-```
+
 syntac-server.ts.net {
     tls /certs/syntac-server.ts.net.crt /certs/syntac-server.ts.net.key
 
@@ -217,6 +236,6 @@ syntac-server.ts.net {
         }
     }
 }
-```
+
 
 </details>
