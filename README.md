@@ -43,7 +43,7 @@ I keep this README up to date with my progress.
 
 ## 📦 Services
 
-All services run in **Docker** via **Docker Compose**.
+All services run in **Docker** via **Docker Compose**. docker-compose.yaml examples at the bottom.
 
 ### Currently Running
 
@@ -68,13 +68,13 @@ All services run in **Docker** via **Docker Compose**.
 
 ## 📊 Monitoring
 
-> Not set up yet — this is next on the list.
 
 Planning to deploy:
-- **Wazuh** — centralised log aggregation across the server, main PC, and travel laptop
-- **Uptime Kuma** — service uptime monitoring with email/Telegram alerts
+- **Wazuh** — centralised log aggregation across the server, main PC, and travel laptop. The server will not be able to handle the log querries.
+- **Uptime Kuma** — service uptime monitoring with email alerts
 
-The focus will be on log aggregation and alerting, not active response. This will most likely have to run on my main
+The focus will be on log aggregation and alerting, not active response. 
+Planning on setting up rules to catch network traffic, VPN logins and ssh logs.
 
 ---
 
@@ -92,7 +92,7 @@ The focus will be on log aggregation and alerting, not active response. This wil
 - 🔜 All services behind **Authelia SSO + 2FA**
 - 🔜 IDS via **Suricata** with custom rules
 - 🔜 SIEM via **Wazuh** aggregating logs from all devices
-- 🔜 Planning to enroll all personal devices to gather logs from the main PC, server, and laptop
+- 🔜 Enroll all personal devices to gather logs from the main PC, server, and laptop
 
 
 ---
@@ -102,7 +102,7 @@ The focus will be on log aggregation and alerting, not active response. This wil
 <details>
 <summary>📄 Nextcloud — docker-compose.yml</summary>
 
-yaml
+```yaml
 services:
   nextcloud:
     image: nextcloud:33
@@ -146,7 +146,7 @@ volumes:
 networks:
   nextcloud-net:
     driver: bridge
-
+```
 
 </details>
 
@@ -155,7 +155,7 @@ networks:
 <details>
 <summary>📄 Vaultwarden — docker-compose.yaml</summary>
 
-yaml
+```yaml
 services:
   vaultwarden:
     image: vaultwarden/server:latest
@@ -181,7 +181,7 @@ services:
 networks:
   proxy:
     external: true
-
+```
 
 </details>
 
@@ -190,7 +190,7 @@ networks:
 <details>
 <summary>📄 Caddy — docker-compose.yaml</summary>
 
-yaml
+```yaml
 services:
   caddy:
     image: caddy:latest
@@ -207,7 +207,7 @@ services:
 volumes:
   caddy_data:
   caddy_config:
-
+```
 
 </details>
 
@@ -216,7 +216,7 @@ volumes:
 <details>
 <summary>📄 Caddy — Caddyfile</summary>
 
-
+```
 syntac-server.ts.net {
     tls /certs/syntac-server.ts.net.crt /certs/syntac-server.ts.net.key
 
@@ -236,6 +236,6 @@ syntac-server.ts.net {
         }
     }
 }
-
+```
 
 </details>
