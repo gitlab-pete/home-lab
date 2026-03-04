@@ -52,12 +52,12 @@ All services run in **Docker** via **Docker Compose**. docker-compose.yaml examp
 | **Nextcloud**    | Self-hosted file storage & sharing   | Friend accounts set up for sharing                 |
 | **Vaultwarden**  | Self-hosted password manager         | Bitwarden-compatible clients & browser extensions  |
 | **Caddy**        | Reverse proxy                        | HTTPS termination with Tailscale TLS cert          |
+| **Portainer**    | Docker management UI                 | Web UI over Tailscale — works on CLI-only servers  |
 
 ### Planned
 
 | Service          | Purpose                              | Notes                                              |
 |------------------|--------------------------------------|----------------------------------------------------|
-| **Portainer**    | Docker management UI                 | Web UI over Tailscale — works on CLI-only servers  |
 | **Wazuh**        | SIEM — log aggregation & alerts      | Agents on server, main PC, and travel laptop       |
 | **Suricata**     | IDS — network traffic inspection     | Custom rules, alert validation                     |
 | **Authelia**     | SSO + 2FA                            | Single login across all services                   |
@@ -105,7 +105,7 @@ Planning on setting up rules to catch network traffic, VPN logins and ssh logs.
 ```yaml
 services:
   nextcloud:
-    image: nextcloud:33
+    image: nextcloud:33 
     restart: unless-stopped
     ports:
       - "8080:80"
@@ -168,7 +168,7 @@ services:
       - "127.0.0.1:3012:3012"
     environment:
       - WEB_VAULT_ENABLED=true
-      - DOMAIN=https://syntac-server.ts.net/vault
+      - DOMAIN=https://syntac-server.tiffany-bonito.ts.net/vault
       - SIGNUPS_ALLOWED=false
       - ADMIN_TOKEN=${ADMIN_TOKEN}
       - WEBSOCKET_ENABLED=true
@@ -218,7 +218,11 @@ volumes:
 
 ```
 syntac-server.ts.net {
-    tls /certs/syntac-server.ts.net.crt /certs/syntac-server.ts.net.key
+    tls /certs/syntac-server.tiffany-bonito.ts.net.crt /certs/syntac-server.tiffany-bonito.ts.net.key
+
+    handle_path /portainer* {
+        reverse_proxy 127.0.0.1:9000
+    }
 
     handle /vault* {
         reverse_proxy 127.0.0.1:8081
@@ -239,3 +243,26 @@ syntac-server.ts.net {
 ```
 
 </details>
+
+<details>
+<summary>📄 Portainet - docker-compose.yaml</summary>
+
+```
+services:
+  portainer:
+    image: portainer/portainer-ce:latest
+    container_name: portainer
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:9000:9000"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - portainer_data:/data
+    command: --base-url /portainer
+
+volumes:
+  portainer_data:
+```
+
+</details>
+
