@@ -2,7 +2,7 @@
 
 Personal home lab running on a repurposed laptop. Started this as a way to get hands-on with self-hosting, Linux administration, and network security — and it's grown into something I actually rely on day-to-day.
 
-Still a work in progress. The core stuff is up and running; the rest is planned.
+Still a work in progress. The core is up and running; the rest is planned.
 I keep this README up to date with my progress.
 
 ---
