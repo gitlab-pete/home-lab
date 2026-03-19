@@ -31,10 +31,10 @@ I keep this README up to date with my progress.
 
 | Service     | Status | Role                                                                 |
 |--------------|--------|----------------------------------------------------------------------|
-| **Tailscale**| ✅ Done | Free VPN provider, that also gives TLS certificates for their domain — all services accessible only over Tailscale  |
+| **Tailscale**| ✅ Done | Free VPN provider, that also gives TLS certificates for their domain |
 | **Caddy**    | ✅ Done | Reverse proxy — HTTPS via Tailscale-issued TLS cert (`*.ts.net`)    |
 | **UFW**      | ✅ Done | Firewall blocks all traffic except Tailscale interface (`ts0`)    |
-| **OpenSSH**  | ✅ Done | Key-based auth only, password auth disabled, non-default port, restricted to Tailscale interface |
+| **OpenSSH**  | ✅ Done | Key-based auth only, password auth disabled, non-default port, restricted to Tailscale |
 | **Fail2ban** | ✅ Done | Bans IPs on 3rd failed SSH attempt for 5 mins                    |
 | **NextDNS**  | ✅ Done | Cloud DNS with blocklists — coexists with Tailscale    |
 
@@ -50,7 +50,7 @@ All services run in **Docker** via **Docker Compose**. docker-compose.yaml examp
 |------------------|--------------------------------------|----------------------------------------------------------------|
 | **Nextcloud**    | Self-hosted file storage & sharing   | Used for phone photo autoupdates and remote torrenting with Qbittorrent |
 | **Vaultwarden**  | Self-hosted password manager         | Bitwarden-compatible clients & browser extensions - This is the main service I share with family and friends |
-| **Caddy**        | Reverse proxy                        | HTTPS termination with Tailscale TLS cert + Used as the reverse proxy for Piped |
+| **Caddy**        | Reverse proxy                        | HTTPS termination with Tailscale TLS cert + Used as the reverse proxy for Invidious |
 | **Portainer**    | Docker management UI                 | Web UI over Tailscale, currently used for monitoring and remote restarts / updates if needed. |
 | **qBittorrent**  | Torrent client                       | Web UI, accessible via Tailscale only; Automatically updates files to Nextcloud |
 
@@ -62,7 +62,7 @@ All services run in **Docker** via **Docker Compose**. docker-compose.yaml examp
 | **Suricata**     | IDS — network traffic inspection               | Custom rules, alert validation; I will set up custom alerts, for unusual login times, fileserver auto updates, to generate and practice on alerts |
 | **Authelia**     | SSO + 2FA                                      | Single login across all services, The actual app may not be suited for my goals, apperantly it will not integrate well with some of my self hosted services |
 | **Uptime Kuma**  | Uptime monitoring & alerting                   | Alerts via email if anything goes down |
-| **Piped**        | Free Youtube without adds and Google monitoring| This project is already half done, but I suspect that recent YT API changes broke it, currently the app itself is accessible, but YT is refusing to provide videos and thumbnails |
+| **Invidious**   (previously Piped)     | Free Youtube without adds and Google monitoring | This project is made difficult, because of youtube's efforts to filter out and block bots. the  |
 
 ---
 
@@ -271,6 +271,7 @@ volumes:
 
 <details>
 <summary>📄 Piped - docker-compose.yaml</summary>
+This will be replaced by Invidious. Currently I cant get it to work reliably with the YT, so i did not upload it.
 
 ```
 services:
